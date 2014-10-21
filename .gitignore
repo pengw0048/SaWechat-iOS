@@ -41,3 +41,8 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# VS bin and obj
+bin/
+obj/
+*.suo
