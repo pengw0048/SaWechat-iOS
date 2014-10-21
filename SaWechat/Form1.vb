@@ -344,25 +344,25 @@ Public Class Form1
         End Select
     End Function
 
-    Public Function GoodName(ByVal ChatTitle As String) As String
-        ChatTitle = ChatTitle.Replace("\", "")
-        ChatTitle = ChatTitle.Replace("/", "")
-        ChatTitle = ChatTitle.Replace(":", "")
-        ChatTitle = ChatTitle.Replace("*", "")
-        ChatTitle = ChatTitle.Replace("?", "")
-        ChatTitle = ChatTitle.Replace("""", "")
-        ChatTitle = ChatTitle.Replace("<", "")
-        ChatTitle = ChatTitle.Replace(">", "")
-        ChatTitle = ChatTitle.Replace("|", "")
-        Return ChatTitle
+    Public Function GoodName(ByVal s As String) As String
+        s = s.Replace("\", "")
+        s = s.Replace("/", "")
+        s = s.Replace(":", "")
+        s = s.Replace("*", "")
+        s = s.Replace("?", "")
+        s = s.Replace("""", "")
+        s = s.Replace("<", "")
+        s = s.Replace(">", "")
+        s = s.Replace("|", "")
+        Return s
     End Function
 
     Public Function handleEmoji(ByVal tc As Integer, ByRef saveBase As String, ByRef ResBase As String) As String
-        Dim LibraryPath As String = Trim(tc)
-        If Not File.Exists(saveBase & "Emoji\" & LibraryPath & ".png") Then
-            My.Computer.FileSystem.CopyFile(ResBase & "Emoji\" & LibraryPath & ".png", saveBase & "Emoji\" & LibraryPath & ".png")
+        Dim EmojiNum As String = Trim(tc)
+        If Not File.Exists(saveBase & "Emoji\" & EmojiNum & ".png") Then
+            My.Computer.FileSystem.CopyFile(ResBase & "Emoji\" & EmojiNum & ".png", saveBase & "Emoji\" & EmojiNum & ".png")
         End If
-        Return "<img src=""Emoji\" & LibraryPath & ".png"" width=""18px"" height=""18px"" />"
+        Return "<img src=""Emoji\" & EmojiNum & ".png"" width=""18px"" height=""18px"" />"
     End Function
 
     Public Function MD5(ByVal strSource As String, Optional ByVal Code As Short = 32) As String
