@@ -42,7 +42,8 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# VS bin and obj
+# VS bin and obj and res
 bin/
 obj/
+res/
 *.suo
