@@ -52,8 +52,44 @@ Public Class Form1
         End If
     End Sub
 
+    Private Sub Button2_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button2.Click
+
+    End Sub
 
 
+    Public Sub convertAmr(ByVal name As String)
+        Dim startInfo As New ProcessStartInfo("ffmpeg.exe", "-y -i """ & name & ".amr"" -acodec libmp3lame -ab 32k """ & name & ".mp3""")
+        startInfo.WindowStyle = ProcessWindowStyle.Hidden
+        Process.Start(startInfo).WaitForExit()
+    End Sub
+
+    Public Function copyImage(ByVal source As String, ByVal dest As String) As String
+        Dim stream As New FileStream(source, FileMode.Open)
+        Dim num As Byte = CByte(stream.ReadByte)
+        stream.Close()
+        Select Case num
+            Case &H47
+                If Not File.Exists(dest & ".gif") Then
+                    My.Computer.FileSystem.CopyFile(source, dest & ".gif")
+                End If
+                Return "gif"
+            Case &H89
+                If Not File.Exists(dest & ".png") Then
+                    My.Computer.FileSystem.CopyFile(source, dest & ".png")
+                End If
+                Return "png"
+            Case &HFF
+                If Not File.Exists(dest & ".jpg") Then
+                    My.Computer.FileSystem.CopyFile(source, dest & ".jpg")
+                End If
+                Return "gif"
+            Case Else
+                If Not File.Exists(dest & ".pic") Then
+                    My.Computer.FileSystem.CopyFile(source, dest & ".pic")
+                End If
+                Return "pic"
+        End Select
+    End Function
 
     Public Function GoodName(ByVal s As String) As String
         s = s.Replace("\", "")
