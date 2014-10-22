@@ -336,7 +336,7 @@ Public Class Form1
                 While reader2.EndOfStream = False
                     Dim ts As String = reader2.ReadLine
                     If Trim(ts) = "" Then Continue While
-                    ExpressionName(index, x) = ("[" & ts & "]")
+                    ExpressionName(index, x) = Trim(ts)
                     ExpressionHTML(index, x) = ("<img src=""Expression\Expression_" & Trim(index) & "@2x.png"" width=""18px"" height=""18px"" />")
                     index += 1
                 End While
