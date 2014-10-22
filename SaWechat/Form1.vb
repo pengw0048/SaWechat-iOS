@@ -331,7 +331,7 @@ Public Class Form1
             ' ToDo: upload new expressions
             Dim ExpressionName(300) As String
             Dim ExpressionHTML(300) As String
-            index = 0
+            index = 1
             While reader2.EndOfStream = False
                 Dim ts As String = reader2.ReadLine
                 If Trim(ts) = "" Then Continue While
@@ -594,7 +594,7 @@ Public Class Form1
                             End Try
                         Else
                             Message = SafeHTML(Message)
-                            For i = 0 To 104
+                            For i = 1 To 105
                                 Message = Message.Replace(ExpressionName(i), ExpressionHTML(i))
                             Next
                             Dim builder As New StringBuilder
@@ -607,7 +607,6 @@ Public Class Form1
                             Next
                             Message = builder.ToString
                             If (Message.Length > 1) Then
-                                '这一段在新版微信中是否已不需要？
                                 builder = New StringBuilder
                                 Dim tasc As Integer = 0
                                 For i = 1 To Message.Length - 1
