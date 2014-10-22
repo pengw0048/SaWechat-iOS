@@ -228,6 +228,9 @@ Public Class Form1
                         Dim Status As Integer = reader.GetInt32(3)
                         Dim Des As Integer = reader.GetInt32(4)
                         Dim MsgType As Integer = reader.GetInt32(5)
+                        If InStr(Message, "wxeb7ec651dd0aefa9", CompareMethod.Text) <> 0 Then
+                            Message = "[文件]"
+                        End If
                         If InStr(Message, "<voicemsg ", CompareMethod.Text) <> 0 Then
                             Message = "[语音]"
                         End If
@@ -249,6 +252,9 @@ Public Class Form1
                         End If
                         If InStr(Message, "<location ", CompareMethod.Text) <> 0 Then
                             Message = "[位置]"
+                        End If
+                        If InStr(Message, "Location sharing", CompareMethod.Text) <> 0 Then
+                            Message = "[位置实时共享]"
                         End If
                         If MsgType = 10000 Then
                             writer.WriteLine("系统消息: " & Message)
@@ -516,7 +522,13 @@ Public Class Form1
                         Dim Status As Integer = reader.GetInt32(3)
                         Dim Des As Integer = reader.GetInt32(4)
                         Dim MsgType As Integer = reader.GetInt32(5)
-                        If InStr(Message, "<voicemsg ", CompareMethod.Text) <> 0 Then
+                        If InStr(Message, "wxeb7ec651dd0aefa9", CompareMethod.Text) <> 0 Then
+                            Try
+                                Message = "[文件]&nbsp;" & Split(Split(Message, "![CDATA[")(1), "]]")(0)
+                            Catch ex As Exception
+                                Message = "[文件]"
+                            End Try
+                        ElseIf InStr(Message, "<voicemsg ", CompareMethod.Text) <> 0 Then
                             If File.Exists(SavePath & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".amr") Then
                                 Dim VoiceLength As Integer
                                 If InStr(Message, "voicelength=""", CompareMethod.Text) <> 0 Then
@@ -594,6 +606,8 @@ Public Class Form1
                             Catch exception11 As Exception
                                 Message = "[名片]"
                             End Try
+                        ElseIf InStr(Message, "Location sharing", CompareMethod.Text) <> 0 Then
+                            Message = "[位置实时共享]"
                         Else
                             For x = 0 To 5
                                 For i = 1 To 105
