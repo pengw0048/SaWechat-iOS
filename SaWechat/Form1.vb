@@ -95,10 +95,10 @@ Public Class Form1
         Dim PicHD(FriendsLoopCount) As String
         Dim OwnerPotrait As String = ""
         Dim OwnerPotraitHD As String = ""
-        If File.Exists(DocumentsPath & "Usr\" & ComboBox1.Text & ".pic_usr") Then
+        If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(ComboBox1.Text, 2) & "\" & Strings.Mid(ComboBox1.Text, 3) & ".pic_usr") Then
             OwnerPotrait = ComboBox1.Text
         End If
-        If File.Exists(DocumentsPath & "Usr\" & ComboBox1.Text & ".pic_hd") Then
+        If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(ComboBox1.Text, 2) & "\" & Strings.Mid(ComboBox1.Text, 3) & ".pic_hd") Then
             OwnerPotraitHD = ComboBox1.Text
         End If
         command.CommandText = "select Friend.UsrName,Friend.NickName,Friend.Sex,Friend_Ext.ConRemark,Friend_Ext.ConChatRoomMem,Friend_Ext.ConStrRes2 from Friend join Friend_Ext on Friend.UsrName=Friend_Ext.UsrName"
@@ -125,17 +125,17 @@ Public Class Form1
             If InStr(AliasString, "<alias>", CompareMethod.Text) <> 0 Then
                 Friend_UsrNameMD5_Alias(index) = MD5(Split(Split(reader.GetString(5), "<alias>", -1, CompareMethod.Text)(1), "</alias>", -1, CompareMethod.Text)(0), &H20)
             End If
-            If File.Exists((DocumentsPath & "Usr\" & Friend_UsrNameMD5_Alias(index) & ".pic_usr")) Then
+            If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(Friend_UsrNameMD5_Alias(index), 2) & "\" & Strings.Mid(Friend_UsrNameMD5_Alias(index), 3) & ".pic_usr") Then
                 PicUsr(index) = Friend_UsrNameMD5_Alias(index)
             End If
-            If File.Exists((DocumentsPath & "Usr\" & Friend_UsrNameMD5(index) & ".pic_usr")) Then
+            If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(Friend_UsrNameMD5(index), 2) & "\" & Strings.Mid(Friend_UsrNameMD5(index), 3) & ".pic_usr") Then
                 PicUsr(index) = Friend_UsrNameMD5(index)
             End If
-            If File.Exists((DocumentsPath & "Usr\" & Friend_UsrNameMD5_Alias(index) & ".pic_hd")) Then
-                PicHd(index) = Friend_UsrNameMD5_Alias(index)
+            If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(Friend_UsrNameMD5_Alias(index), 2) & "\" & Strings.Mid(Friend_UsrNameMD5_Alias(index), 3) & ".pic_hd") Then
+                PicHD(index) = Friend_UsrNameMD5_Alias(index)
             End If
-            If File.Exists((DocumentsPath & "Usr\" & Friend_UsrNameMD5(index) & ".pic_hd")) Then
-                PicHd(index) = Friend_UsrNameMD5(index)
+            If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(Friend_UsrNameMD5(index), 2) & "\" & Strings.Mid(Friend_UsrNameMD5(index), 3) & ".pic_hd") Then
+                PicHD(index) = Friend_UsrNameMD5(index)
             End If
             index += 1
             Application.DoEvents()
@@ -171,9 +171,9 @@ Public Class Form1
                 Label7.Text = "处理聊天记录 " & Trim(index + 1) & "/" & Trim(ChatMD5Length)
                 Application.DoEvents()
                 Dim IndexInChatMD5 As Integer = ChatMD5Index(index)
-                Dim ChatRoomUsrName() As String
-                Dim DisplayNickname() As String
-                Dim IndexInFriend_UsrName() As Integer
+                Dim ChatRoomUsrName() As String = Nothing
+                Dim DisplayNickname() As String = Nothing
+                Dim IndexInFriend_UsrName() As Integer = Nothing
                 Dim isChatRoom As Boolean
                 If Strings.Right(Friend_UsrName(IndexInChatMD5), 9).ToLower = "@chatroom" Then
                     isChatRoom = True
@@ -207,8 +207,8 @@ Public Class Form1
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
                 Dim ChatLinesCount As Integer = CInt(command.ExecuteScalar())
                 Dim writer As New StreamWriter(SavePath & safeName(GoodName(ChatTitle)) & ".txt", False, Encoding.UTF8)
-                For i = 0 To (ChatLinesCount - 1) / 100 + 1
-                    ProgressBar1.Value = CInt(Math.Round((CDbl(i) / (ChatLinesCount - 1) / 100 + 2) * 100))
+                For i = 0 To CInt((ChatLinesCount - 1) / 100 + 1)
+                    ProgressBar1.Value = CInt(Math.Round((CDbl(i) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
                     Application.DoEvents()
                     command.CommandText = "select MesLocalID,CreateTime,Message,Status,Des,Type from Chat_" & ChatMD5(index) & " order by CreateTime asc limit " & Trim(i * 100) & ",100"
                     reader = command.ExecuteReader
@@ -291,7 +291,6 @@ Public Class Form1
             Next
 
         ElseIf RadioButton2.Checked Then
-            Dim num62 As Integer
             Dim HasEmojiNum(&H1FBD0) As Boolean
             Dim DirInfo As New DirectoryInfo((ResBase & "Emoji"))
             Dim FilInfo As FileInfo
@@ -309,19 +308,21 @@ Public Class Form1
             Directory.CreateDirectory(SavePath & "Emotion")
             Directory.CreateDirectory(SavePath & "Emoji")
             My.Computer.FileSystem.CopyFile(ResBase & "DefaultProfileHead@2x.png", SavePath & "Potrait\DefaultProfileHead@2x.png", True)
-            DirInfo = New DirectoryInfo(DocumentsPath & "Usr")
+            'changed in new version
+            DirInfo = New DirectoryInfo(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0")
             Label7.Text = "复制头像"
             Dim ProcessedCount As Integer = 0
-            'Dim FilInfo As FileInfo
-            For Each FilInfo In DirInfo.GetFiles
-                ProgressBar1.Value = CInt(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+            For Each FolderInfo As DirectoryInfo In DirInfo.GetDirectories
                 ProcessedCount += 1
-                Application.DoEvents()
-                If FilInfo.Extension.ToLower = ".pic_usr" And FilInfo.Name.Length = 40 Then
-                    My.Computer.FileSystem.CopyFile(FilInfo.FullName, SavePath & "Potrait\" & Strings.Left(FilInfo.Name, 32) & ".jpg", True)
-                ElseIf FilInfo.Extension.ToLower = ".pic_hd" And FilInfo.Name.Length = 39 Then
-                    My.Computer.FileSystem.CopyFile(FilInfo.FullName, SavePath & "Potrait\" & Strings.Left(FilInfo.Name, 32) & "_hd.jpg", True)
-                End If
+                For Each FilInfo In FolderInfo.GetFiles
+                    ProgressBar1.Value = CInt(CDbl(ProcessedCount) / DirInfo.GetDirectories.Length * 100.0)
+                    Application.DoEvents()
+                    If FilInfo.Extension.ToLower = ".pic_usr" And FilInfo.Name.Length = 38 Then
+                        My.Computer.FileSystem.CopyFile(FilInfo.FullName, SavePath & "Potrait\" & FolderInfo.Name & Strings.Left(FilInfo.Name, 30) & ".jpg", True)
+                    ElseIf FilInfo.Extension.ToLower = ".pic_hd" And FilInfo.Name.Length = 37 Then
+                        My.Computer.FileSystem.CopyFile(FilInfo.FullName, SavePath & "Potrait\" & FolderInfo.Name & Strings.Left(FilInfo.Name, 30) & "_hd.jpg", True)
+                    End If
+                Next
             Next
             Label7.Text = "复制表情"
             Application.DoEvents()
@@ -345,8 +346,8 @@ Public Class Form1
                 Dim CurrentFriendIndex As Integer = ChatMD5Index(index)
                 Dim path As String = (SavePath & Friend_UsrName(CurrentFriendIndex) & "_Img\")
                 Directory.CreateDirectory(path)
-                If Friend_UsrNameMD5(CurrentFriendIndex) <> "" AndAlso Directory.Exists(DocumentsPath & "Img\" & Friend_UsrName(CurrentFriendIndex)) Then
-                    DirInfo = New DirectoryInfo(DocumentsPath & "Img\" & Friend_UsrName(CurrentFriendIndex))
+                If Friend_UsrNameMD5(CurrentFriendIndex) <> "" AndAlso Directory.Exists(DocumentsPath & "Img\" & Friend_UsrNameMD5(CurrentFriendIndex)) Then
+                    DirInfo = New DirectoryInfo(DocumentsPath & "Img\" & Friend_UsrNameMD5(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
@@ -386,8 +387,8 @@ Public Class Form1
                 Dim CurrentFriendIndex As Integer = ChatMD5Index(index)
                 Dim path As String = (SavePath & Friend_UsrName(CurrentFriendIndex) & "_Aud\")
                 Directory.CreateDirectory(path)
-                If Friend_UsrName(CurrentFriendIndex) <> "" AndAlso Directory.Exists(DocumentsPath & "Audio\" & Friend_UsrName(CurrentFriendIndex)) Then
-                    DirInfo = New DirectoryInfo(DocumentsPath & "Audio\" & Friend_UsrName(CurrentFriendIndex))
+                If Friend_UsrNameMD5(CurrentFriendIndex) <> "" AndAlso Directory.Exists(DocumentsPath & "Audio\" & Friend_UsrNameMD5(CurrentFriendIndex)) Then
+                    DirInfo = New DirectoryInfo(DocumentsPath & "Audio\" & Friend_UsrNameMD5(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
@@ -407,7 +408,7 @@ Public Class Form1
                     Next
                 End If
                 If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrNameMD5_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Audio\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
-                    DirInfo = New DirectoryInfo(DocumentsPath & "Audio\" & Friend_UsrName(CurrentFriendIndex))
+                    DirInfo = New DirectoryInfo(DocumentsPath & "Audio\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
@@ -436,9 +437,9 @@ Public Class Form1
                 Label7.Text = "处理聊天记录 " & Trim(index + 1) & "/" & Trim(ChatMD5Length)
                 Application.DoEvents()
                 Dim IndexInChatMD5 As Integer = ChatMD5Index(index)
-                Dim ChatRoomUsrName() As String
-                Dim DisplayNickname() As String
-                Dim IndexInFriend_UsrName() As Integer
+                Dim ChatRoomUsrName() As String = Nothing
+                Dim DisplayNickname() As String = Nothing
+                Dim IndexInFriend_UsrName() As Integer = Nothing
                 Dim IsChatRoom As Boolean
                 If Strings.Right(Friend_UsrName(IndexInChatMD5), 9).ToLower = "@chatroom" Then
                     IsChatRoom = True
@@ -473,7 +474,7 @@ Public Class Form1
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
                 Dim ChatLinesCount As Integer = CInt(command.ExecuteScalar())
                 For n = 0 To (ChatLinesCount - 1) / 100
-                    ProgressBar1.Value = CInt(Math.Round((CDbl(n) / (ChatLinesCount - 1) / 100 + 2) * 100))
+                    ProgressBar1.Value = CInt(Math.Round((CDbl(n) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
                     Application.DoEvents()
                     Dim writer3 As New StreamWriter(SavePath & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 1) & ".htm")
                     writer3.WriteLine("<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Transitional//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"">")
@@ -482,7 +483,7 @@ Public Class Form1
                     If (n > 0) Then
                         NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm"">第一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n) & ".htm"">上一页</a>&nbsp;"
                     End If
-                    For i = 0 To (ChatLinesCount - 1) / 100
+                    For i = 0 To CInt((ChatLinesCount - 1) / 100)
                         If (i <> n) Then
                             NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(i + 1) & ".htm"">" & Trim(i + 1) & "</a>&nbsp;"
                         Else
@@ -490,7 +491,7 @@ Public Class Form1
                         End If
                     Next
                     If n < (ChatLinesCount - 1) / 100 Then
-                        NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 2) & ".htm"">下一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim((ChatLinesCount - 1) / 100 + 1) & ".htm"">最后一页</a>&nbsp;"
+                        NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 2) & ".htm"">下一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(CInt((ChatLinesCount - 1) / 100) + 1) & ".htm"">最后一页</a>&nbsp;"
                     End If
                     NaviString = NaviString & "</p>"
                     writer3.WriteLine(NaviString)
@@ -593,7 +594,7 @@ Public Class Form1
                             End Try
                         Else
                             Message = SafeHTML(Message)
-                            For i = 1 To 105
+                            For i = 0 To 104
                                 Message = Message.Replace(ExpressionName(i), ExpressionHTML(i))
                             Next
                             Dim builder As New StringBuilder
