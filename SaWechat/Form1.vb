@@ -83,7 +83,7 @@ Public Class Form1
         connection.Open()
         command.Connection = connection
         command.CommandText = "select count(*) from Friend"
-        Dim FriendsLoopCount As Integer = CInt(command.ExecuteScalar()) + 10
+        Dim FriendsLoopCount As Integer = Int(command.ExecuteScalar()) + 10
         Dim Friend_UsrName(FriendsLoopCount) As String
         Dim Friend_NickName(FriendsLoopCount) As String
         Dim Friend_Sex(FriendsLoopCount) As Integer
@@ -199,16 +199,18 @@ Public Class Form1
                             DisplayNickname(j) = ChatRoomUsrName(j)
                         End If
                     Next
+                Else
+                    isChatRoom = False
                 End If
                 Dim ChatTitle As String = Friend_NickName(IndexInChatMD5)
                 If FriendExt_ConRemark(IndexInChatMD5) <> "" Then
                     ChatTitle = FriendExt_ConRemark(IndexInChatMD5)
                 End If
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
-                Dim ChatLinesCount As Integer = CInt(command.ExecuteScalar())
+                Dim ChatLinesCount As Integer = Int(command.ExecuteScalar())
                 Dim writer As New StreamWriter(SavePath & safeName(GoodName(ChatTitle)) & ".txt", False, Encoding.UTF8)
-                For i = 0 To CInt((ChatLinesCount - 1) / 100 + 1)
-                    ProgressBar1.Value = CInt(Math.Round((CDbl(i) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
+                For i = 0 To Int((ChatLinesCount - 1) / 100)
+                    ProgressBar1.Value = Int(Math.Round((CDbl(i) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
                     Application.DoEvents()
                     command.CommandText = "select MesLocalID,CreateTime,Message,Status,Des,Type from Chat_" & ChatMD5(index) & " order by CreateTime asc limit " & Trim(i * 100) & ",100"
                     reader = command.ExecuteReader
@@ -321,7 +323,7 @@ Public Class Form1
             For Each FolderInfo As DirectoryInfo In DirInfo.GetDirectories
                 ProcessedCount += 1
                 For Each FilInfo In FolderInfo.GetFiles
-                    ProgressBar1.Value = CInt(CDbl(ProcessedCount) / DirInfo.GetDirectories.Length * 100.0)
+                    ProgressBar1.Value = Int(CDbl(ProcessedCount) / DirInfo.GetDirectories.Length * 100.0)
                     Application.DoEvents()
                     If FilInfo.Extension.ToLower = ".pic_usr" And FilInfo.Name.Length = 38 Then
                         My.Computer.FileSystem.CopyFile(FilInfo.FullName, SavePath & "Potrait\" & FolderInfo.Name & Strings.Left(FilInfo.Name, 30) & ".jpg", True)
@@ -342,7 +344,7 @@ Public Class Form1
                 While reader2.EndOfStream = False
                     Dim ts As String = reader2.ReadLine
                     If Trim(ts) = "" Then Continue While
-                    ExpressionName(index, x) = Trim(ts)
+                    ExpressionName(index, x) = SafeHTML(Trim(ts))
                     ExpressionHTML(index, x) = ("<img src=""Expression\Expression_" & Trim(index) & "@2x.png"" width=""18px"" height=""18px"" />")
                     index += 1
                 End While
@@ -359,7 +361,7 @@ Public Class Form1
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
-                        ProgressBar1.Value = CInt(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
                         ProcessedCount += 1
                         Application.DoEvents()
                         If FilInfo.Extension.ToLower = ".pic" Then
@@ -376,7 +378,7 @@ Public Class Form1
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
-                        ProgressBar1.Value = CInt(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
                         ProcessedCount += 1
                         Application.DoEvents()
                         If FilInfo.Extension.ToLower = ".pic" Then
@@ -400,7 +402,7 @@ Public Class Form1
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
-                        ProgressBar1.Value = CInt(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
                         ProcessedCount += 1
                         Application.DoEvents()
                         If (FilInfo.Extension.ToLower = ".aud") Then
@@ -420,7 +422,7 @@ Public Class Form1
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
                     For Each FilInfo In DirInfo.GetFiles
-                        ProgressBar1.Value = CInt(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
                         ProcessedCount += 1
                         Application.DoEvents()
                         If (FilInfo.Extension.ToLower = ".aud") Then
@@ -473,6 +475,8 @@ Public Class Form1
                             DisplayNickname(j) = ChatRoomUsrName(j)
                         End If
                     Next
+                Else
+                    IsChatRoom = False
                 End If
                 Dim ChatTitle As String = Friend_NickName(IndexInChatMD5)
                 If FriendExt_ConRemark(IndexInChatMD5) <> "" Then
@@ -480,26 +484,26 @@ Public Class Form1
                 End If
                 writer2.WriteLine("<tr><td width=""80"" align=""center""><a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm""><img src=""Potrait\" & IIf(PicUsr(IndexInChatMD5) = "", "DefaultProfileHead@2x.png", PicUsr(IndexInChatMD5) & ".jpg") & """ width=""50"" height=""50""/></a></td><td width=""140"" align=""center""><a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm"">" & ChatTitle & "</a></td></tr>")
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
-                Dim ChatLinesCount As Integer = CInt(command.ExecuteScalar())
+                Dim ChatLinesCount As Integer = Int(command.ExecuteScalar())
                 For n = 0 To (ChatLinesCount - 1) / 100
-                    ProgressBar1.Value = CInt(Math.Round((CDbl(n) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
+                    ProgressBar1.Value = Int(Math.Round((CDbl(n) / ((ChatLinesCount - 1) / 100 + 2)) * 100))
                     Application.DoEvents()
                     Dim writer3 As New StreamWriter(SavePath & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 1) & ".htm")
                     writer3.WriteLine("<!DOCTYPE html PUBLIC ""-//W3C//DTD XHTML 1.0 Transitional//EN"" ""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"">")
-                    writer3.WriteLine("<html xmlns=""http://www.w3.org/1999/xhtml""><head><meta http-equiv=""Content-Type"" content=""text/html; charset=utf-8"" /><title>" & ChatTitle & " - 微信聊天记录 " & Trim(n + 1) & "/" & Trim(CInt((ChatLinesCount - 1) / 100 + 1)) & "</title></head>")
+                    writer3.WriteLine("<html xmlns=""http://www.w3.org/1999/xhtml""><head><meta http-equiv=""Content-Type"" content=""text/html; charset=utf-8"" /><title>" & ChatTitle & " - 微信聊天记录 " & Trim(n + 1) & "/" & Trim(Int((ChatLinesCount - 1) / 100 + 1)) & "</title></head>")
                     Dim NaviString As String = "<p style=""font-size:12px""><a href=""index.htm"">返回目录</a>&nbsp;&nbsp;"
                     If (n > 0) Then
                         NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm"">第一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n) & ".htm"">上一页</a>&nbsp;"
                     End If
-                    For i = 0 To CInt((ChatLinesCount - 1) / 100)
+                    For i = 0 To Int((ChatLinesCount - 1) / 100)
                         If (i <> n) Then
                             NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(i + 1) & ".htm"">" & Trim(i + 1) & "</a>&nbsp;"
                         Else
                             NaviString = NaviString & "<strong>" & Trim(i + 1) & "</strong>&nbsp;"
                         End If
                     Next
-                    If n < (ChatLinesCount - 1) / 100 Then
-                        NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 2) & ".htm"">下一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(CInt((ChatLinesCount - 1) / 100) + 1) & ".htm"">最后一页</a>&nbsp;"
+                    If n < Int((ChatLinesCount - 1) / 100) Then
+                        NaviString = NaviString & "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(n + 2) & ".htm"">下一页</a>&nbsp;<a href=""" & Friend_UsrName(IndexInChatMD5) & "_" & Trim(Int((ChatLinesCount - 1) / 100) + 1) & ".htm"">最后一页</a>&nbsp;"
                     End If
                     NaviString = NaviString & "</p>"
                     writer3.WriteLine(NaviString)
@@ -532,20 +536,20 @@ Public Class Form1
                             If File.Exists(SavePath & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".amr") Then
                                 Dim VoiceLength As Integer
                                 If InStr(Message, "voicelength=""", CompareMethod.Text) <> 0 Then
-                                    VoiceLength = CInt(Split(Split(Message, "voicelength=""", -1, CompareMethod.Text)(1), """", -1, CompareMethod.Binary)(0))
+                                    VoiceLength = Int(Split(Split(Message, "voicelength=""", -1, CompareMethod.Text)(1), """", -1, CompareMethod.Binary)(0))
                                 End If
                                 Message = "<object width=""100px"" height=""40px"" classid=""clsid:CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"" codebase=""http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701""><param name=""FileName"" value=""" & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".amr"" /><param NAME=""AutoStart"" VALUE=""0""><embed type=""application/x-mplayer2"" width=""100px"" height=""40px"" autoplay=""false"" autostart=""false"" pluginspage=""http://www.microsoft.com/Windows/MediaPlayer/"" src=""" & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".amr"" /></object>"
                                 If VoiceLength > 0 Then
-                                    Message = Message & "&nbsp;" & Trim(CInt(VoiceLength / 1000) + 1) & "'"
+                                    Message = Message & "&nbsp;" & Trim(Int(VoiceLength / 1000) + 1) & "'"
                                 End If
                             ElseIf File.Exists(SavePath & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".mp3") Then
                                 Dim VoiceLength As Integer
                                 If InStr(Message, "voicelength=""", CompareMethod.Text) <> 0 Then
-                                    VoiceLength = CInt(Split(Split(Message, "voicelength=""", -1, CompareMethod.Text)(1), """", -1, CompareMethod.Binary)(0))
+                                    VoiceLength = Int(Split(Split(Message, "voicelength=""", -1, CompareMethod.Text)(1), """", -1, CompareMethod.Binary)(0))
                                 End If
                                 Message = "<audio controls preload=""none""><source src=""" & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".mp3"" type=""audio/mpeg""><object width=""100px"" height=""40px"" classid=""clsid:CLSID:22D6F312-B0F6-11D0-94AB-0080C74C7E95"" codebase=""http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701""><param name=""FileName"" value=""" & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".mp3"" /><param NAME=""AutoStart"" VALUE=""0""><embed type=""application/x-mplayer2"" width=""100px"" height=""40px"" autoplay=""false"" autostart=""false"" pluginspage=""http://www.microsoft.com/Windows/MediaPlayer/"" src=""" & Friend_UsrName(IndexInChatMD5) & "_Aud\" & Trim(MesLocalID) & ".mp3"" /></object></audio>"
                                 If VoiceLength > 0 Then
-                                    Message = Message & "&nbsp;" & Trim(CInt(VoiceLength / 1000) + 1) & "'"
+                                    Message = Message & "&nbsp;" & Trim(Int(VoiceLength / 1000) + 1) & "'"
                                 End If
                             Else
                                 Message = "[语音]"
@@ -609,12 +613,12 @@ Public Class Form1
                         ElseIf InStr(Message, "Location sharing", CompareMethod.Text) <> 0 Then
                             Message = "[位置实时共享]"
                         Else
+                            Message = SafeHTML(Message)
                             For x = 0 To 5
                                 For i = 1 To 105
                                     Message = Message.Replace(ExpressionName(i, x), ExpressionHTML(i, x))
                                 Next
                             Next
-                            Message = SafeHTML(Message)
                             Dim builder As New StringBuilder
                             For i = 0 To Message.Length - 1
                                 If HasEmojiNum(AscW(Strings.Mid(Message, (i + 1), 1))) Then
