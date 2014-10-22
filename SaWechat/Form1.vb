@@ -327,19 +327,21 @@ Public Class Form1
             Label7.Text = "复制表情"
             Application.DoEvents()
             My.Computer.FileSystem.CopyDirectory(ResBase & "Expression", SavePath & "Expression", True)
-            Dim reader2 As New StreamReader(ResBase & "Expression\Expression.txt")
-            ' ToDo: upload new expressions
-            Dim ExpressionName(300) As String
-            Dim ExpressionHTML(300) As String
-            index = 1
-            While reader2.EndOfStream = False
-                Dim ts As String = reader2.ReadLine
-                If Trim(ts) = "" Then Continue While
-                ExpressionName(index) = ("[" & ts & "]")
-                ExpressionHTML(index) = ("<img src=""Expression\Expression_" & Trim(index) & "@2x.png"" width=""18px"" height=""18px"" />")
-                index += 1
-            End While
-            reader2.Close()
+            Dim ExpressionName(110, 5) As String
+            Dim ExpressionHTML(110, 5) As String
+            Dim reader2 As StreamReader = Nothing
+            For x = 0 To 5
+                reader2 = New StreamReader(ResBase & "Expression\Expression" & Trim(x) & ".txt")
+                index = 1
+                While reader2.EndOfStream = False
+                    Dim ts As String = reader2.ReadLine
+                    If Trim(ts) = "" Then Continue While
+                    ExpressionName(index, x) = ("[" & ts & "]")
+                    ExpressionHTML(index, x) = ("<img src=""Expression\Expression_" & Trim(index) & "@2x.png"" width=""18px"" height=""18px"" />")
+                    index += 1
+                End While
+                reader2.Close()
+            Next
             For index = 0 To ChatMD5Length - 1
                 Label7.Text = ("复制图片 " & Trim(index + 1) & "/" & Trim(ChatMD5Length))
                 Application.DoEvents()
@@ -594,8 +596,10 @@ Public Class Form1
                             End Try
                         Else
                             Message = SafeHTML(Message)
-                            For i = 1 To 105
-                                Message = Message.Replace(ExpressionName(i), ExpressionHTML(i))
+                            For x = 0 To 5
+                                For i = 1 To 105
+                                    Message = Message.Replace(ExpressionName(i, x), ExpressionHTML(i, x))
+                                Next
                             Next
                             Dim builder As New StringBuilder
                             For i = 0 To Message.Length - 1
