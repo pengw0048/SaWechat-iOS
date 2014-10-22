@@ -595,12 +595,12 @@ Public Class Form1
                                 Message = "[名片]"
                             End Try
                         Else
-                            Message = SafeHTML(Message)
                             For x = 0 To 5
                                 For i = 1 To 105
                                     Message = Message.Replace(ExpressionName(i, x), ExpressionHTML(i, x))
                                 Next
                             Next
+                            Message = SafeHTML(Message)
                             Dim builder As New StringBuilder
                             For i = 0 To Message.Length - 1
                                 If HasEmojiNum(AscW(Strings.Mid(Message, (i + 1), 1))) Then
