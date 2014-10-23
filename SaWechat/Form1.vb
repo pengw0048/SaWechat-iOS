@@ -236,6 +236,9 @@ Public Class Form1
                         If InStr(Message, "<voicemsg ", CompareMethod.Text) <> 0 Then
                             Message = "[语音]"
                         End If
+                        If InStr(Message, "<videomsg ", CompareMethod.Text) <> 0 Then
+                            Message = "[视频]"
+                        End If
                         If InStr(Message, "<emoji ", CompareMethod.Text) <> 0 Then
                             Message = "[表情]"
                         End If
@@ -387,6 +390,43 @@ Public Class Form1
                             My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & "_thum.jpg", True)
                         ElseIf FilInfo.Extension.ToLower = ".pic_hd" Then
                             My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & ".jpg", True)
+                        End If
+                    Next
+                End If
+            Next
+            For index = 0 To ChatMD5Length - 1
+                Label7.Text = ("复制视频 " & Trim(index + 1) & "/" & Trim(ChatMD5Length))
+                Application.DoEvents()
+                Dim CurrentFriendIndex As Integer = ChatMD5Index(index)
+                Dim path As String = (SavePath & Friend_UsrName(CurrentFriendIndex) & "_Video\")
+                Directory.CreateDirectory(path)
+                If Friend_UsrNameMD5(CurrentFriendIndex) <> "" AndAlso Directory.Exists(DocumentsPath & "Video\" & Friend_UsrNameMD5(CurrentFriendIndex)) Then
+                    DirInfo = New DirectoryInfo(DocumentsPath & "Video\" & Friend_UsrNameMD5(CurrentFriendIndex))
+                    ProcessedCount = 0
+                    'Dim FilInfo As FileInfo
+                    For Each FilInfo In DirInfo.GetFiles
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProcessedCount += 1
+                        Application.DoEvents()
+                        If FilInfo.Extension.ToLower = ".video_thum" Then
+                            My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & ".jpg", True)
+                        ElseIf FilInfo.Extension.ToLower = ".mp4" Then
+                            My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & ".mp4", True)
+                        End If
+                    Next
+                End If
+                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrNameMD5_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Video\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
+                    DirInfo = New DirectoryInfo(DocumentsPath & "Video\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex))
+                    ProcessedCount = 0
+                    'Dim FilInfo As FileInfo
+                    For Each FilInfo In DirInfo.GetFiles
+                        ProgressBar1.Value = Int(CDbl(ProcessedCount) / IIf(DirInfo.GetFiles.Length = 0, 1, DirInfo.GetFiles.Length) * 100.0)
+                        ProcessedCount += 1
+                        Application.DoEvents()
+                        If FilInfo.Extension.ToLower = ".video_thum" Then
+                            My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & ".jpg", True)
+                        ElseIf FilInfo.Extension.ToLower = ".mp4" Then
+                            My.Computer.FileSystem.CopyFile(FilInfo.FullName, path & Split(FilInfo.Name, ".", -1, CompareMethod.Binary)(0) & ".mp4", True)
                         End If
                     Next
                 End If
@@ -594,6 +634,21 @@ Public Class Form1
                                 End If
                             Else
                                 Message = "[图片]"
+                            End If
+                        ElseIf InStr(Message, "<videomsg ", CompareMethod.Text) <> 0 Then
+                            If File.Exists(SavePath & Friend_UsrName(IndexInChatMD5) & "_Video\" & Trim(MesLocalID) & ".jpg") Then
+                                If File.Exists(SavePath & Friend_UsrName(IndexInChatMD5) & "_Video\" & Trim(MesLocalID) & ".jpg") Then
+                                    Dim VideoLength As String = ""
+                                    Try
+                                        VideoLength = Split(Split(Message, "playlength=""", -1, CompareMethod.Text)(1), """", -1, CompareMethod.Binary)(0) + "'"
+                                    Catch ex As Exception
+                                    End Try
+                                    Message = "<a href=""" & Friend_UsrName(IndexInChatMD5) & "_Video\" & Trim(MesLocalID) & ".mp4""><img src=""" & Friend_UsrName(IndexInChatMD5) & "_Video\" & Trim(MesLocalID) & ".jpg""/></a>&nbsp;[视频]&nbsp;" + VideoLength
+                                Else
+                                    Message = "<img src=""" & Friend_UsrName(IndexInChatMD5) & "_Video\" & Trim(MesLocalID) & ".jpg""/>&nbsp;[视频文件未找到]"
+                                End If
+                            Else
+                                Message = "[视频]"
                             End If
                         ElseIf InStr(Message, "<location ", CompareMethod.Text) <> 0 Then
                             Try
