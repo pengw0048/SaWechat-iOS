@@ -206,6 +206,10 @@ Public Class Form1
                 If FriendExt_ConRemark(IndexInChatMD5) <> "" Then
                     ChatTitle = FriendExt_ConRemark(IndexInChatMD5)
                 End If
+                If ChatTitle = "" And isChatRoom Then
+                    ChatTitle = String.Join("、", DisplayNickname, 0, NumInChatRoom)
+                    If ChatTitle.Length > 30 Then ChatTitle = Strings.Left(ChatTitle, 30) + "..."
+                End If
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
                 Dim ChatLinesCount As Integer = Int(command.ExecuteScalar())
                 Dim writer As New StreamWriter(SavePath & safeName(GoodName(ChatTitle)) & ".txt", False, Encoding.UTF8)
@@ -521,6 +525,10 @@ Public Class Form1
                 Dim ChatTitle As String = Friend_NickName(IndexInChatMD5)
                 If FriendExt_ConRemark(IndexInChatMD5) <> "" Then
                     ChatTitle = FriendExt_ConRemark(IndexInChatMD5)
+                End If
+                If ChatTitle = "" And IsChatRoom Then
+                    ChatTitle = String.Join("、", DisplayNickname, 0, NumInChatRoom)
+                    If ChatTitle.Length > 30 Then ChatTitle = Strings.Left(ChatTitle, 30) + "..."
                 End If
                 writer2.WriteLine("<tr><td width=""80"" align=""center""><a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm""><img src=""Potrait\" & IIf(PicUsr(IndexInChatMD5) = "", "DefaultProfileHead@2x.png", PicUsr(IndexInChatMD5) & ".jpg") & """ width=""50"" height=""50""/></a></td><td width=""140"" align=""center""><a href=""" & Friend_UsrName(IndexInChatMD5) & "_1.htm"">" & ChatTitle & "</a></td></tr>")
                 command.CommandText = "select count(*) from Chat_" & ChatMD5(index)
