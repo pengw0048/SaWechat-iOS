@@ -83,16 +83,16 @@ Public Class Form1
         connection.Open()
         command.Connection = connection
         command.CommandText = "select count(*) from Friend"
-        Dim FriendsLoopCount As Integer = Int(command.ExecuteScalar()) + 10
-        Dim Friend_UsrName(FriendsLoopCount) As String
-        Dim Friend_NickName(FriendsLoopCount) As String
-        Dim Friend_Sex(FriendsLoopCount) As Integer
-        Dim FriendExt_ConRemark(FriendsLoopCount) As String
-        Dim FriendExt_ConChatRoomMem(FriendsLoopCount) As String
-        Dim Friend_UsrNameMD5(FriendsLoopCount) As String
-        Dim Friend_UsrNameMD5_Alias(FriendsLoopCount) As String
-        Dim PicUsr(FriendsLoopCount) As String
-        Dim PicHD(FriendsLoopCount) As String
+        Dim FriendsArraySize As Integer = Int(command.ExecuteScalar()) + 10
+        Dim Friend_UsrName(FriendsArraySize) As String
+        Dim Friend_NickName(FriendsArraySize) As String
+        Dim Friend_Sex(FriendsArraySize) As Integer
+        Dim FriendExt_ConRemark(FriendsArraySize) As String
+        Dim FriendExt_ConChatRoomMem(FriendsArraySize) As String
+        Dim Friend_UsrNameMD5(FriendsArraySize) As String
+        Dim Friend_UsrNameMD5_Alias(FriendsArraySize) As String
+        Dim PicUsr(FriendsArraySize) As String
+        Dim PicHD(FriendsArraySize) As String
         Dim OwnerPotrait As String = ""
         Dim OwnerPotraitHD As String = ""
         If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(ComboBox1.Text, 2) & "\" & Strings.Mid(ComboBox1.Text, 3) & ".pic_usr") Then
@@ -144,8 +144,8 @@ Public Class Form1
         reader.Close()
         command.CommandText = "select name from sqlite_master where type='table' order by name;"
         reader = command.ExecuteReader
-        Dim ChatMD5Index(FriendsLoopCount) As Integer
-        Dim ChatMD5(FriendsLoopCount) As String
+        Dim ChatMD5Index(FriendsArraySize) As Integer
+        Dim ChatMD5(FriendsArraySize) As String
         Do While reader.Read
             Dim TableName As String = ""
             If Not reader.IsDBNull(0) Then
