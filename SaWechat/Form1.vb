@@ -7,17 +7,6 @@ Public Class Form1
 
     Dim rightpath As String
 
-    Private Sub Label5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Label5.Click
-        MsgBox("AMR是语音的原有储存格式，质量好，文件小，但在浏览器中可能无法播放。" + vbCrLf + _
-               "请安装相应解码包，例如K-Lite Codec Pack。" + vbCrLf + _
-               "MP3是通用格式，转换中可能损失部分音质，增加文件大小。" + vbCrLf + _
-               "要不，您都试试？")
-    End Sub
-
-    Private Sub PictureBox1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles PictureBox1.Click
-        MsgBox("支付宝付款地址功能已被取消。" + vbCrLf + "麻烦您付款到支付宝账号tiancaihb@sina.com。")
-    End Sub
-
     Private Sub Button1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Button1.Click
         FolderBrowserDialog1.ShowDialog()
         TextBox1.Text = FolderBrowserDialog1.SelectedPath
@@ -31,22 +20,19 @@ Public Class Form1
             Button2.Enabled = True
             ComboBox1.Items.Clear()
             ComboBox1.Text = ""
-            Dim DirInfo As New DirectoryInfo(rightpath & "Documents")
-            Dim FilInfo As DirectoryInfo
-            For Each FilInfo In DirInfo.GetDirectories
-                If FilInfo.Name.Length = 32 And FilInfo.Name.Replace("0", "") <> "" Then
-                    ComboBox1.Items.Add(FilInfo.Name)
-                End If
-            Next
-            If ComboBox1.Items.Count = 0 Then
-                Label2.Text = "未找到"
-                Label2.ForeColor = Color.Red
-                Button2.Enabled = False
-                MsgBox("没有找到用户登录记录？")
-            Else
-                ComboBox1.SelectedIndex = 0
-            End If
-        Else
+            Try
+                Dim DirInfo As New DirectoryInfo(rightpath & "Documents")
+                Dim FilInfo As DirectoryInfo
+                For Each FilInfo In DirInfo.GetDirectories
+                    If FilInfo.Name.Length = 32 And FilInfo.Name.Replace("0", "") <> "" Then
+                        ComboBox1.Items.Add(FilInfo.Name)
+                    End If
+                Next
+            Catch ex As Exception
+            End Try
+            If ComboBox1.Items.Count > 0 Then ComboBox1.SelectedIndex = 0
+        End If
+        If ComboBox1.Items.Count = 0 Then
             Label2.Text = "未找到"
             Label2.ForeColor = Color.Red
             Button2.Enabled = False
@@ -66,10 +52,10 @@ Public Class Form1
         ProgressBar1.Value = 0
         Label7.Text = "读取基本信息"
         Application.DoEvents()
-        Dim DocumentsPath As String = (rightpath & "Documents\" & ComboBox1.Text & "\")
-        Dim LibraryPath As String = (rightpath & "Library\")
+        Dim DocumentsPath As String = rightpath & "Documents\" & ComboBox1.Text & "\"
+        Dim LibraryPath As String = rightpath & "Library\"
         Dim NowDateString As String = Now.ToString("yyyyMMddHHmmss")
-        Dim SavePath As String = Path.GetDirectoryName(Reflection.Assembly.GetExecutingAssembly.Location)
+        Dim SavePath As String = AppDomain.CurrentDomain.BaseDirectory
         If Not SavePath.EndsWith("\") Then
             SavePath = SavePath & "\"
         End If
@@ -307,7 +293,7 @@ Public Class Form1
 
         ElseIf RadioButton2.Checked Then
             Dim HasEmojiNum(&H1FBD0) As Boolean
-            Dim DirInfo As New DirectoryInfo((ResBase & "Emoji"))
+            Dim DirInfo As New DirectoryInfo(ResBase & "Emoji")
             Dim FilInfo As FileInfo
             For Each FilInfo In DirInfo.GetFiles
                 If FilInfo.Name.ToLower.EndsWith(".png") Then
@@ -836,6 +822,17 @@ Public Class Form1
         Dim startInfo As New ProcessStartInfo("ffmpeg.exe", "-y -i """ & name & ".amr"" -acodec libmp3lame -ab 32k """ & name & ".mp3""")
         startInfo.WindowStyle = ProcessWindowStyle.Hidden
         Process.Start(startInfo).WaitForExit()
+    End Sub
+
+    Private Sub Label5_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Label5.Click
+        MsgBox("AMR是语音的原有储存格式，质量好，文件小，但在浏览器中可能无法播放。" + vbCrLf + _
+               "请安装相应解码包，例如K-Lite Codec Pack。" + vbCrLf + _
+               "MP3是通用格式，转换中可能损失部分音质，增加文件大小。" + vbCrLf + _
+               "要不，您都试试？")
+    End Sub
+
+    Private Sub PictureBox1_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles PictureBox1.Click
+        MsgBox("支付宝付款地址功能已被取消。" + vbCrLf + "麻烦您付款到支付宝账号tiancaihb@sina.com。")
     End Sub
 
     Public Function copyImage(ByVal source As String, ByVal dest As String) As String
