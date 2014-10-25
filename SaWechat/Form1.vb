@@ -293,6 +293,7 @@ Public Class Form1
 
         ElseIf RadioButton2.Checked Then
             Dim HasEmojiNum(&H1FBD0) As Boolean
+            Dim UsedEmoji(&H1FBD0) As Boolean
             Dim DirInfo As New DirectoryInfo(ResBase & "Emoji")
             Dim FilInfo As FileInfo
             For Each FilInfo In DirInfo.GetFiles
@@ -670,10 +671,12 @@ Public Class Form1
                             Next
                             Dim builder As New StringBuilder
                             For i = 0 To Message.Length - 1
-                                If HasEmojiNum(AscW(Strings.Mid(Message, (i + 1), 1))) Then
-                                    builder.Append(HandleEmoji(AscW(Strings.Mid(Message, i + 1, 1)), SavePath, ResBase))
+                                Dim ts = Strings.Mid(Message, (i + 1), 1)
+                                If HasEmojiNum(AscW(ts)) Then
+                                    UsedEmoji(AscW(ts)) = True
+                                    builder.Append(HandleEmoji(AscW(ts), SavePath, ResBase))
                                 Else
-                                    builder.Append(Strings.Mid(Message, (i + 1), 1))
+                                    builder.Append(ts)
                                 End If
                             Next
                             Message = builder.ToString
@@ -689,6 +692,7 @@ Public Class Form1
                                             tasc = 0
                                         End If
                                         If HasEmojiNum(tasc) Then
+                                            UsedEmoji(tasc) = True
                                             builder.Append(HandleEmoji(tasc, SavePath, ResBase))
                                             i += 1
                                         Else
@@ -773,9 +777,30 @@ Public Class Form1
             Next
             writer2.WriteLine("</table></body></html>")
             writer2.Close()
+            Label7.Text = "清理多余文件"
+            DirInfo = New DirectoryInfo(ResBase & "Emoji")
+            For Each FilInfo In DirInfo.GetFiles
+                If FilInfo.Name.ToLower.EndsWith(".png") Then
+                    Try
+                        If UsedEmoji(Val(Strings.Left(FilInfo.Name, FilInfo.Name.Length - 4))) = False Then
+                            My.Computer.FileSystem.DeleteFile(FilInfo.FullName)
+                        End If
+                    Catch ex As Exception
+                    End Try
+                End If
+            Next
+            DirInfo = New DirectoryInfo(SavePath)
+            For Each FolderInfo As DirectoryInfo In DirInfo.GetDirectories
+                If FolderInfo.GetFiles.Length = 0 Then
+                    Try
+                        My.Computer.FileSystem.DeleteDirectory(FolderInfo.FullName, FileIO.DeleteDirectoryOption.DeleteAllContents)
+                    Catch ex As Exception
+                    End Try
+                End If
+            Next
         End If
         connection.Close()
-        MsgBox("保存完成，文件在程序目录下的" & NowDateString & "文件夹中")
+        MsgBox("保存完成，文件在程序目录下的" & NowDateString & "文件夹中" + IIf(RadioButton2.Checked, vbCrLf + "请打开其中的index.html", ""))
         Button1.Enabled = True
         Button2.Enabled = True
         GroupBox1.Enabled = True
