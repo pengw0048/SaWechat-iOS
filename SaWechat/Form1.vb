@@ -14,11 +14,11 @@ Public Class Form1
         If Not rightpath.EndsWith("\") Then
             rightpath = (rightpath & "\")
         End If
+        ComboBox1.Items.Clear()
         If Directory.Exists(rightpath & "Documents") And Directory.Exists(rightpath & "Library") Then
             Label2.Text = "正确"
             Label2.ForeColor = Color.Green
             Button2.Enabled = True
-            ComboBox1.Items.Clear()
             ComboBox1.Text = ""
             Try
                 Dim DirInfo As New DirectoryInfo(rightpath & "Documents")
