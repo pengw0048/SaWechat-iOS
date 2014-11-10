@@ -71,6 +71,7 @@ Public Class Form1
         command.CommandText = "select count(*) from Friend"
         Dim FriendsArraySize As Integer = Int(command.ExecuteScalar()) + 10
         Dim Friend_UsrName(FriendsArraySize) As String
+        Dim Friend_UsrName_Alias(FriendsArraySize) As String
         Dim Friend_NickName(FriendsArraySize) As String
         Dim Friend_Sex(FriendsArraySize) As Integer
         Dim FriendExt_ConRemark(FriendsArraySize) As String
@@ -92,6 +93,7 @@ Public Class Form1
         Dim index As Integer = 0
         Do While reader.Read
             Friend_UsrName(index) = reader.GetString(0)
+            Friend_UsrName_Alias(index) = Friend_UsrName(index)
             Friend_UsrNameMD5(index) = MD5(Friend_UsrName(index), &H20)
             Friend_UsrNameMD5_Alias(index) = Friend_UsrNameMD5(index)
             If Not reader.IsDBNull(1) Then
@@ -109,7 +111,8 @@ Public Class Form1
                 AliasString = reader.GetString(5)
             End If
             If InStr(AliasString, "<alias>", CompareMethod.Text) <> 0 Then
-                Friend_UsrNameMD5_Alias(index) = MD5(Split(Split(reader.GetString(5), "<alias>", -1, CompareMethod.Text)(1), "</alias>", -1, CompareMethod.Text)(0), &H20)
+                Friend_UsrName_Alias(index) = Split(Split(reader.GetString(5), "<alias>", -1, CompareMethod.Text)(1), "</alias>", -1, CompareMethod.Text)(0)
+                Friend_UsrNameMD5_Alias(index) = MD5(Friend_UsrName_Alias(index), &H20)
             End If
             If File.Exists(LibraryPath & "WechatPrivate\" & ComboBox1.Text & "\HeadImg\0\" & Strings.Left(Friend_UsrNameMD5_Alias(index), 2) & "\" & Strings.Mid(Friend_UsrNameMD5_Alias(index), 3) & ".pic_usr") Then
                 PicUsr(index) = Friend_UsrNameMD5_Alias(index)
@@ -171,7 +174,7 @@ Public Class Form1
                         IndexInFriend_UsrName(j) = -1
                         Dim k As Integer = 0
                         For k = 0 To FriendsCount - 1
-                            If (Friend_UsrName(k) = ChatRoomUsrName(j)) Then
+                            If (Friend_UsrName(k) = ChatRoomUsrName(j) Or Friend_UsrName_Alias(k) = ChatRoomUsrName(j)) Then
                                 IndexInFriend_UsrName(j) = k
                                 Exit For
                             End If
@@ -367,7 +370,7 @@ Public Class Form1
                         End If
                     Next
                 End If
-                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrNameMD5_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Img\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
+                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrName_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Img\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
                     DirInfo = New DirectoryInfo(DocumentsPath & "Img\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
@@ -406,7 +409,7 @@ Public Class Form1
                         End If
                     Next
                 End If
-                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrNameMD5_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Video\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
+                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrName_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Video\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
                     DirInfo = New DirectoryInfo(DocumentsPath & "Video\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
@@ -448,7 +451,7 @@ Public Class Form1
                         End If
                     Next
                 End If
-                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrNameMD5_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Audio\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
+                If (Friend_UsrNameMD5_Alias(CurrentFriendIndex) <> "" And Friend_UsrName(CurrentFriendIndex) <> Friend_UsrName_Alias(CurrentFriendIndex)) AndAlso Directory.Exists(DocumentsPath & "Audio\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex)) Then
                     DirInfo = New DirectoryInfo(DocumentsPath & "Audio\" & Friend_UsrNameMD5_Alias(CurrentFriendIndex))
                     ProcessedCount = 0
                     'Dim FilInfo As FileInfo
@@ -492,7 +495,7 @@ Public Class Form1
                         IndexInFriend_UsrName(j) = -1
                         Dim k As Integer = 0
                         For k = 0 To FriendsCount - 1
-                            If (Friend_UsrName(k) = ChatRoomUsrName(j)) Then
+                            If (Friend_UsrName(k) = ChatRoomUsrName(j) Or Friend_UsrName_Alias(k) = ChatRoomUsrName(j)) Then
                                 IndexInFriend_UsrName(j) = k
                                 Exit For
                             End If
